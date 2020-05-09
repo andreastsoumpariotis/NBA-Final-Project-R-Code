@@ -5,8 +5,16 @@ library(tidyverse)
 library(olsrr)
 library(broom)
 library(glmnet)
-library (car) # for VIF
-library (ridge)
+library(car) # for VIF
+library(ridge)
+library(MASS)
+library(AppliedPredictiveModeling)
+library(caret)
+library(klaR)
+library(randomForest)
+library(pROC)
+library(OptimalCutpoints)
+library(ISLR)
 
 # Read dataset
 
@@ -146,5 +154,24 @@ ols_step_backward_p(model, details = TRUE)
 k = ols_step_backward_p(model)
 plot(k)
 
-
-
+# Logistic Regression
+set.seed(0)
+nba <- read.csv("C:\\Users\\Admin\\Downloads\\Final Project Data.csv")
+train <- nba[-which(nba$Season==2019),]
+test <- nba[which(nba$Season==2019),]
+nba <- nba[-271,]
+View(nba)
+fit <- glm(nba$Playoffs ~ ., data = nba[,-c(1,2,5,8,9)], family = "binomial")
+summary(fit)
+fit.probs <- predict(fit,data = data.frame(test$Playoffs) , interval = "prediction", type="response")
+fit.pred <- rep(0,270)
+fit.pred[fit.probs > 0.50] <- 1
+table(fit.pred,nba$Playoffs)
+mean(fit.pred==nba$Playoffs)
+fit1 <- glm(nba$Championship ~ ., data = nba[,-c(1,2,4,5,9)], family = "binomial")
+summary(fit1)
+fit1.probs <- predict(fit1,type = "response")
+fit1.pred <- rep(0,270)
+fit1.pred[fit1.probs > 0.50] <- 1
+table(fit1.pred,nba$Playoffs)
+mean(fit1.pred==nba$Playoffs)
